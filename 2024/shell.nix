@@ -3,6 +3,7 @@
 
 pkgs.mkShell {
   nativeBuildInputs = with pkgs; [
+    entr
     gleam
     glas
     erlang
