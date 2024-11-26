@@ -12,21 +12,26 @@ pub fn main() {
     ])
 
   case argv.load().arguments {
-    [ part ] ->
-      case dict.get(parts, part) {
-        Ok(part_fn) -> part_fn()
-        Error(_) -> io.println("Could not find part '" <> part <> "'.")
-      }
+    [ part ] -> exec_part(part, dict.get(parts, part))
     _ -> {
       parts
         |> dict.to_list
         |> list.map(_, fn(entry) {
           let #(name, part_fn) = entry
-          io.println("")
-          io.println("Part '" <> name <> "':")
-          part_fn()
+          exec_part(name, Ok(part_fn))
         })
       Nil
     }
+  }
+}
+
+pub fn exec_part(name, fn_result) {
+  io.println("")
+  case fn_result {
+    Ok(part_fn) -> {
+      io.println("Part '" <> name <> "':")
+      part_fn()
+    }
+    Error(_) -> io.println("Could not find part '" <> name <> "'.")
   }
 }
