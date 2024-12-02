@@ -1,5 +1,6 @@
 import argv
 import day01/day01
+import day02/day02
 import gleam/dict
 import gleam/io
 import gleam/list
@@ -9,7 +10,11 @@ pub fn main() {
   io.println("Hello from aoc_2024!")
 
   let parts =
-    dict.from_list([#("helloworld", helloworld.main), #("01", day01.main)])
+    dict.from_list([
+      #("helloworld", helloworld.main),
+      #("01", day01.main),
+      #("02", day02.main),
+    ])
 
   case argv.load().arguments {
     [part] -> exec_part(part, dict.get(parts, part))
