@@ -28,57 +28,57 @@ pub fn main() {
   }
 }
 
+type Status {
+  Unknown
+  Increasing
+  Decreasing
+}
+
 pub fn part_one(input) {
   input
-  |> string.split("\n")
-  |> list.map(fn(line) {
-    string.split(" ")
-    |> list.try_map(int.parse)
-    |> result.unwrap([])
-  })
-  |> get_differences
-  |> int.sum
+  |> parse_reports
+  |> list.map(classify_report)
+  |> list.filter(is_safe)
+  |> list.length
   |> int.to_string
   |> io.println
 }
 
-pub fn split_lists(input) {
-  string.split(input, on: "\n")
-  |> list.map(fn(line) {
-    use #(first, second) <- result.try(string.split_once(line, on: "   "))
-    use first_int <- result.try(int.parse(first))
-    use second_int <- result.map(int.parse(second))
-    #(first_int, second_int)
-  })
-  |> list.map(result.unwrap(_, #(0, 0)))
-  |> list.unzip
-}
-
-pub fn sort_both(lists) {
-  let #(list_a, list_b) = lists
-  #(list.sort(list_a, by: int.compare), list.sort(list_b, by: int.compare))
-}
-
-pub fn get_differences(lists) {
-  let #(list_a, list_b) = lists
-  list.zip(list_a, list_b)
-  |> list.map(fn(pair) {
+fn classify_report(report) {
+  list.zip(report, list.drop(report, 1))
+  |> list.try_fold(Unknown, fn(status, pair) {
     let #(a, b) = pair
-    int.absolute_value(a - b)
+    let diff = b - a
+    case status, diff {
+      _, 0 -> Error(Nil)
+      _, diff if diff > 3 -> Error(Nil)
+      _, diff if diff < -3 -> Error(Nil)
+      Unknown, diff if diff > 0 -> Ok(Increasing)
+      Unknown, diff if diff < 0 -> Ok(Decreasing)
+      Increasing, diff if diff < 0 -> Error(Nil)
+      Increasing, diff if diff > 0 -> Ok(Increasing)
+      Decreasing, diff if diff < 0 -> Ok(Decreasing)
+      Decreasing, diff if diff > 0 -> Error(Nil)
+      // _, _ -> Error(Nil)
+    }
   })
+}
+
+fn is_safe(status) {
+  status == Ok(Increasing) || status == Ok(Decreasing)
+}
+
+fn parse_reports(input) {
+  input
+  |> string.split("\n")
+  |> list.try_map(fn(line) {
+    line
+    |> string.split(" ")
+    |> list.try_map(int.parse)
+  })
+  |> result.unwrap([])
 }
 
 pub fn part_two(input) {
-  input
-  |> split_lists
-  |> calculate_score
-  |> int.to_string
-  |> io.println
-}
-
-pub fn calculate_score(lists) {
-  let #(list_a, list_b) = lists
-  list_a
-  |> list.map(fn(id) { id * list.count(list_b, fn(x) { x == id }) })
-  |> int.sum
+  todo
 }
